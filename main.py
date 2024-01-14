@@ -4,6 +4,7 @@ from sqlalchemy.orm import declarative_base, Session
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
 import os
 cache = {}
 def get_template(template_name: str, context: dict):
