@@ -8,7 +8,7 @@ from fastapi.templating import Jinja2Templates
 DATABASE_URL = os.getenv("DATABASE_URL")  # ElephantSQL에서 제공하는 연결 정보
 
 Base: DeclarativeMeta = declarative_base()
-engine = create_engine(DATABASE_URL)
+
 metadata = MetaData()
 
 class Post(Base):
@@ -18,21 +18,8 @@ class Post(Base):
     content = Column(Text)
     created_at = Column(DateTime, server_default=text('CURRENT_TIMESTAMP'))
 
-Base.metadata.create_all(bind=engine)
-
 app = FastAPI()
 
-templates = Jinja2Templates(directory="templates")
-
-# Dependency to get the database session
-def get_db():
-    db = Session(engine)
-    try:
-        yield db
-    finally:
-        db.close()
-
-app = FastAPI()
 
 @app.get("/")
 async def root():
