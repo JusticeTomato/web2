@@ -4,6 +4,8 @@ from sqlalchemy.orm import declarative_base, Session
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
+import os
+
 DATABASE_URL = os.getenv("DATABASE_URL")
 app = FastAPI()
 
