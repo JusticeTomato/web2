@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends, HTTPException, Request, Form
+from fastapi import FastAPI, Depends, HTTPException, Request, Form, Path
 from sqlalchemy import create_engine, Column, Integer, String, Text, MetaData, DateTime, text
 from sqlalchemy.orm import declarative_base, Session
 from sqlalchemy.ext.declarative import DeclarativeMeta
@@ -61,7 +61,35 @@ def delete_post(post_id: int, db: Session = Depends(get_db)):
     db.commit()
 
     return RedirectResponse(url="/", status_code=303)
+    
+# 게시물 수정 페이지 보여주기
+@app.get("/edit/{post_id}")
+def edit_post_page(post_id: int, request: Request, db: Session = Depends(get_db)):
+    post = db.query(Post).filter(Post.id == post_id).first()
+    if post is None:
+        raise HTTPException(status_code=404, detail="Post not found")
 
+    return templates.TemplateResponse("edit_post.html", {"request": request, "post": post})
+
+# 게시물 수정 처리
+@app.post("/edit/{post_id}")
+async def edit_post(
+    post_id: int,
+    title: str = Form(...),
+    content: str = Form(...),
+    db: Session = Depends(get_db)
+):
+    post = db.query(Post).filter(Post.id == post_id).first()
+    if post is None:
+        raise HTTPException(status_code=404, detail="Post not found")
+
+    # 게시물 수정
+    post.title = title
+    post.content = content
+    db.commit()
+
+    return {"message": "Post updated successfully"}
+    
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
