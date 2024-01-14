@@ -4,13 +4,13 @@ from sqlalchemy.orm import declarative_base, Session
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
-
+DATABASE_URL = os.getenv("DATABASE_URL")
 app = FastAPI()
 
 
 @app.get("/")
 async def root():
-    return {"message": "Hello from FastAPI!"}
+    return {"message": DATABASE_URL}
 
 if __name__ == "__main__":
     import uvicorn
