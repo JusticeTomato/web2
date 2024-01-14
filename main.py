@@ -32,24 +32,11 @@ def get_db():
     finally:
         db.close()
 
-@app.get("/", response_class=HTMLResponse)
-def read_root(request: Request, db: Session = Depends(get_db)):
-    posts = db.query(Post).all()
-    return templates.TemplateResponse("index.html", {"request": request, "posts": posts})
+app = FastAPI()
 
-@app.get("/post/{post_id}", response_class=HTMLResponse)
-def read_post(post_id: int, request: Request, db: Session = Depends(get_db)):
-    post = db.query(Post).filter(Post.id == post_id).first()
-    if post is None:
-        raise HTTPException(status_code=404, detail="Post not found")
-    return templates.TemplateResponse("post.html", {"request": request, "post": post})
-
-@app.post("/create", response_class=HTMLResponse)
-def create_post(title: str = Form(...), content: str = Form(...), db: Session = Depends(get_db)):
-    new_post = Post(title=title, content=content)
-    db.add(new_post)
-    db.commit()
-    return RedirectResponse(url="/", status_code=303)
+@app.get("/")
+async def root():
+    return {"message": "Hello from FastAPI!"}
 
 if __name__ == "__main__":
     import uvicorn
