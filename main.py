@@ -6,7 +6,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 import os
 cache = {}
-def get_template(template_name: str, context: Dict):
+def get_template(template_name: str, context: dict):
     if template_name in cache:
         return cache[template_name]
 
