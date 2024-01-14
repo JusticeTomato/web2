@@ -9,7 +9,34 @@ from pydantic import BaseModel
 from datetime import datetime
 import uvicorn
 
-app = FastAPI()
+DATABASE_URL = "sqlite:///./test.db"
+engine = create_engine(DATABASE_URL)
+
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+Base = declarative_base()
+
+
+class PostDB(Base):
+  __tablename__ = "posts"
+
+  id = Column(Integer, primary_key=True, index=True)
+  title = Column(String, index=True)
+  content = Column(String)
+  created_at = Column(DateTime, server_default=text('CURRENT_TIMESTAMP'))
+
+
+Base.metadata.create_all(bind=engine)
+
+app = FastAPI(force_https=True)
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
+templates = Jinja2Templates(directory="./templates")
+
+
+class PostForm(BaseModel):
+  title: str
+  content: str
 
 @app.get("/")
 async def root():
