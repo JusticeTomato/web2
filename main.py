@@ -7,6 +7,19 @@ from fastapi.templating import Jinja2Templates
 import os
 
 DATABASE_URL = os.getenv("DATABASE_URL")
+
+Base: DeclarativeMeta = declarative_base()
+engine = create_engine(DATABASE_URL)
+metadata = MetaData()
+class Post(Base):
+    __tablename__ = "posts"
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String(100), index=True)
+    content = Column(Text)
+    created_at = Column(DateTime, server_default=text('CURRENT_TIMESTAMP'))
+
+Base.metadata.create_all(bind=engine)
+
 app = FastAPI()
 
 
