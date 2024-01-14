@@ -5,6 +5,14 @@ from sqlalchemy.ext.declarative import DeclarativeMeta
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 import os
+cache = {}
+def get_template(template_name: str = "default.html", context: Dict):
+    if template_name in cache:
+        return cache[template_name]
+
+    template = templates.TemplateResponse(template_name, context)
+    cache[template_name] = template
+    return template
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 
@@ -35,14 +43,16 @@ def get_db():
 @app.get("/", response_class=HTMLResponse)
 async def read_root(request: Request, db: Session = Depends(get_db)):
     posts = db.query(Post).all()
-    return templates.TemplateResponse("index.html", {"request": request, "posts": posts})
+    return get_template("index.html", {"request": request, "posts": posts})
+    # return templates.TemplateResponse("index.html", {"request": request, "posts": posts})
 
 @app.get("/post/{post_id}", response_class=HTMLResponse)
 def read_post(post_id: int, request: Request, db: Session = Depends(get_db)):
     post = db.query(Post).filter(Post.id == post_id).first()
     if post is None:
         raise HTTPException(status_code=404, detail="Post not found")
-    return templates.TemplateResponse("post.html", {"request": request, "post": post})
+    return get_template("post.html", {"request": request, "post": post})
+    # return templates.TemplateResponse("post.html", {"request": request, "post": post})
 
 @app.post("/create", response_class=HTMLResponse)
 def create_post(title: str = Form(...), content: str = Form(...), db: Session = Depends(get_db)):
@@ -93,3 +103,7 @@ async def edit_post(
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+# if __name__ == "__main__":
+#   import uvicorn
+
+#   uvicorn.run(app, host="0.0.0.0", port=3000)
