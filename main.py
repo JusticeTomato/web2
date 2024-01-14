@@ -22,9 +22,18 @@ Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
+templates = Jinja2Templates(directory="templates")
+
+# Dependency to get the database session
+def get_db():
+    db = Session(engine)
+    try:
+        yield db
+    finally:
+        db.close()
 
 @app.get("/")
-async def root():
+async def read_root():
     return {"message": "Hello"}
 
 if __name__ == "__main__":
