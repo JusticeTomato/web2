@@ -33,16 +33,24 @@ app = FastAPI()
 templates = Jinja2Templates(directory="templates")
 
 # Dependency to get the database session
-def get_db():
+async def get_db():
     db = Session(engine)
     try:
         yield db
     finally:
         db.close()
 
+@app.on_event("startup")
+async def startup():
+    await db.connect()
+
+@app.on_event("shutdown")
+async def shutdown():
+    await db.disconnect()
+
 @app.get("/", response_class=HTMLResponse)
 async def read_root(request: Request, db: Session = Depends(get_db)):
-    posts = db.query(Post).all()
+    posts = await db.query(Post).all()
     return get_template("index.html", {"request": request, "posts": posts})
     # return templates.TemplateResponse("index.html", {"request": request, "posts": posts})
 
