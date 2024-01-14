@@ -5,17 +5,6 @@ from sqlalchemy.ext.declarative import DeclarativeMeta
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 
-DATABASE_URL = os.getenv("DATABASE_URL")
-
-metadata = MetaData()
-
-class Post(Base):
-    __tablename__ = "posts"
-    id = Column(Integer, primary_key=True, index=True)
-    title = Column(String(100), index=True)
-    content = Column(Text)
-    created_at = Column(DateTime, server_default=text('CURRENT_TIMESTAMP'))
-
 app = FastAPI()
 
 
