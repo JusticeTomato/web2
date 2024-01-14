@@ -88,7 +88,7 @@ async def edit_post(
     post.content = content
     db.commit()
 
-    return {"message": "Post updated successfully"}
+    return RedirectResponse(url=f"/post/{post_id}", status_code=303)
     
 if __name__ == "__main__":
     import uvicorn
