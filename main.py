@@ -51,9 +51,9 @@ async def shutdown():
     await db.disconnect()
 
 @app.get("/", response_class=HTMLResponse)
-async def read_root(request: Request, db: Session = Depends(get_db)):
-    posts = db.query(Post).all()
-    return get_template("index.html", {"request": request, "posts": posts})
+async def read_root(request: Request):
+    # posts = db.query(Post).all()
+    return get_template("index.html", {"request": request})
     # return templates.TemplateResponse("index.html", {"request": request, "posts": posts})
 
 @app.get("/post/{post_id}", response_class=HTMLResponse)
