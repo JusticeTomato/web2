@@ -51,6 +51,16 @@ def create_post(title: str = Form(...), content: str = Form(...), db: Session = 
     db.commit()
     return RedirectResponse(url="/", status_code=303)
 
+@app.post("/delete/{post_id}")
+def delete_post(post_id: int, db: Session = Depends(get_db)):
+    post = db.query(Post).filter(Post.id == post_id).first()
+    if post is None:
+        raise HTTPException(status_code=404, detail="Post not found")
+    
+    db.delete(post)
+    db.commit()
+
+    return RedirectResponse(url="/", status_code=303)
 
 if __name__ == "__main__":
     import uvicorn
