@@ -41,14 +41,6 @@ async def get_db():
     finally:
         db.close()
 
-@app.on_event("startup")
-async def startup():
-    await db.connect()
-
-@app.on_event("shutdown")
-async def shutdown():
-    await db.disconnect()
-
 @app.get("/", response_class=HTMLResponse)
 async def read_root(request: Request, db: Session = Depends(get_db)):
     posts = db.query(Post).all()
