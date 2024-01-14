@@ -5,9 +5,7 @@ from sqlalchemy.ext.declarative import DeclarativeMeta
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 
-DATABASE_URL = os.getenv("DATABASE_URL")  # ElephantSQL에서 제공하는 연결 정보
-
-Base: DeclarativeMeta = declarative_base()
+DATABASE_URL = os.getenv("DATABASE_URL")
 
 metadata = MetaData()
 
