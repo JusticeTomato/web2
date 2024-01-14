@@ -6,6 +6,14 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 import os
+cache = {}
+def get_template(template_name: str, context: dict):
+    if template_name in cache:
+        return cache[template_name]
+
+    template = templates.TemplateResponse(template_name, context)
+    cache[template_name] = template
+    return template
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 
@@ -22,6 +30,7 @@ class Post(Base):
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 templates = Jinja2Templates(directory="templates")
 
@@ -33,18 +42,27 @@ async def get_db():
     finally:
         db.close()
 
+@app.on_event("startup")
+async def startup():
+    await db.connect()
+
+@app.on_event("shutdown")
+async def shutdown():
+    await db.disconnect()
+
 @app.get("/", response_class=HTMLResponse)
 async def read_root(request: Request, db: Session = Depends(get_db)):
     posts = db.query(Post).all()
-    # return get_template("index.html", {"request": request, "posts": posts})
-    return templates.TemplateResponse("index.html", {"request": request, "posts": posts})
+    return get_template("index.html", {"request": request, "posts": posts})
+    # return templates.TemplateResponse("index.html", {"request": request, "posts": posts})
 
 @app.get("/post/{post_id}", response_class=HTMLResponse)
 def read_post(post_id: int, request: Request, db: Session = Depends(get_db)):
     post = db.query(Post).filter(Post.id == post_id).first()
     if post is None:
         raise HTTPException(status_code=404, detail="Post not found")
-    return templates.TemplateResponse("post.html", {"request": request, "post": post})
+    return get_template("post.html", {"request": request, "post": post})
+    # return templates.TemplateResponse("post.html", {"request": request, "post": post})
 
 @app.post("/create", response_class=HTMLResponse)
 def create_post(title: str = Form(...), content: str = Form(...), db: Session = Depends(get_db)):
