@@ -50,7 +50,7 @@ async def shutdown():
 
 @app.get("/", response_class=HTMLResponse)
 async def read_root(request: Request, db: Session = Depends(get_db)):
-    posts = await db.query(Post).all()
+    posts = db.query(Post).all()
     return get_template("index.html", {"request": request, "posts": posts})
     # return templates.TemplateResponse("index.html", {"request": request, "posts": posts})
 
